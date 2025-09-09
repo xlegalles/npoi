@@ -4,6 +4,10 @@
 //    <NameSpace>NPOI.OpenXmlFormats.Dml</NameSpace><Collection>List</Collection><codeType>CSharp</codeType><EnableDataBinding>False</EnableDataBinding><EnableLazyLoading>False</EnableLazyLoading><TrackingChangesEnable>False</TrackingChangesEnable><GenTrackingClasses>False</GenTrackingClasses><HidePrivateFieldInIDE>False</HidePrivateFieldInIDE><EnableSummaryComment>False</EnableSummaryComment><VirtualProp>False</VirtualProp><IncludeSerializeMethod>False</IncludeSerializeMethod><UseBaseClass>False</UseBaseClass><GenBaseClass>False</GenBaseClass><GenerateCloneMethod>False</GenerateCloneMethod><GenerateDataContracts>False</GenerateDataContracts><CodeBaseTag>Net20</CodeBaseTag><SerializeMethodName>Serialize</SerializeMethodName><DeserializeMethodName>Deserialize</DeserializeMethodName><SaveToFileMethodName>SaveToFile</SaveToFileMethodName><LoadFromFileMethodName>LoadFromFile</LoadFromFileMethodName><GenerateXMLAttributes>True</GenerateXMLAttributes><EnableEncoding>False</EnableEncoding><AutomaticProperties>False</AutomaticProperties><GenerateShouldSerialize>False</GenerateShouldSerialize><DisableDebug>False</DisableDebug><PropNameSpecified>Default</PropNameSpecified><Encoder>UTF8</Encoder><CustomUsings></CustomUsings><ExcludeIncludedTypes>True</ExcludeIncludedTypes><EnableInitializeFields>True</EnableInitializeFields>
 //  </auto-generated>
 // ------------------------------------------------------------------------------
+
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace NPOI.OpenXmlFormats.Dml
 {
     using System;
@@ -57,11 +61,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             sw.Write(">");
             if (this.anchor != null)
                 this.anchor.Write(sw, "anchor");
@@ -71,7 +73,24 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.up.Write(sw, "up");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.anchor != null)
+                await this.anchor.WriteAsync(sw, "anchor", token);
+            if (this.norm != null)
+                await this.norm.WriteAsync(sw, "norm", token);
+            if (this.up != null)
+                await this.up.WriteAsync(sw, "up", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         [XmlElement(Order = 0)]

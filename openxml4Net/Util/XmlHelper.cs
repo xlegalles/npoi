@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace NPOI.OpenXml4Net.Util
 {
-    public static class XmlHelper
+    public static partial class XmlHelper
     {
         public static T ReadEnum<T>(XmlAttribute attr)
         {

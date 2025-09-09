@@ -4,6 +4,10 @@
 //    <NameSpace>NPOI.OpenXmlFormats.Dml</NameSpace><Collection>List</Collection><codeType>CSharp</codeType><EnableDataBinding>False</EnableDataBinding><EnableLazyLoading>False</EnableLazyLoading><TrackingChangesEnable>False</TrackingChangesEnable><GenTrackingClasses>False</GenTrackingClasses><HidePrivateFieldInIDE>False</HidePrivateFieldInIDE><EnableSummaryComment>False</EnableSummaryComment><VirtualProp>False</VirtualProp><IncludeSerializeMethod>False</IncludeSerializeMethod><UseBaseClass>False</UseBaseClass><GenBaseClass>False</GenBaseClass><GenerateCloneMethod>False</GenerateCloneMethod><GenerateDataContracts>False</GenerateDataContracts><CodeBaseTag>Net20</CodeBaseTag><SerializeMethodName>Serialize</SerializeMethodName><DeserializeMethodName>Deserialize</DeserializeMethodName><SaveToFileMethodName>SaveToFile</SaveToFileMethodName><LoadFromFileMethodName>LoadFromFile</LoadFromFileMethodName><GenerateXMLAttributes>True</GenerateXMLAttributes><EnableEncoding>False</EnableEncoding><AutomaticProperties>False</AutomaticProperties><GenerateShouldSerialize>False</GenerateShouldSerialize><DisableDebug>False</DisableDebug><PropNameSpecified>Default</PropNameSpecified><Encoder>UTF8</Encoder><CustomUsings></CustomUsings><ExcludeIncludedTypes>True</ExcludeIncludedTypes><EnableInitializeFields>True</EnableInitializeFields>
 //  </auto-generated>
 // ------------------------------------------------------------------------------
+
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace NPOI.OpenXmlFormats.Dml
 {
     using System;
@@ -51,17 +55,26 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync(string.Format("<a:{0}", nodeName));
+            await XmlHelper.WriteAttributeAsync(sw, "rig", this.rig.ToString(), token);
+            await XmlHelper.WriteAttributeAsync(sw, "dir", this.dir.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.rot != null)
+                await this.rot.WriteAsync(sw, "rot", token);
+            await sw.WriteAsync(string.Format("</a:{0}>", nodeName));
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "rig", this.rig.ToString());
             XmlHelper.WriteAttribute(sw, "dir", this.dir.ToString());
             sw.Write(">");
             if (this.rot != null)
                 this.rot.Write(sw, "rot");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
         }
 
         [XmlElement(Order = 0)]

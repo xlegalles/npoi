@@ -4,6 +4,8 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -65,7 +67,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "noGrp", this.noGrp);
             XmlHelper.WriteAttribute(sw, "noSelect", this.noSelect);
             XmlHelper.WriteAttribute(sw, "noRot", this.noRot);
@@ -79,7 +81,28 @@ namespace NPOI.OpenXmlFormats.Dml
             sw.Write(">");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "noGrp", this.noGrp, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noSelect", this.noSelect, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noRot", this.noRot, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeAspect", this.noChangeAspect, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noMove", this.noMove, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noResize", this.noResize, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noEditPoints", this.noEditPoints, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noAdjustHandles", this.noAdjustHandles, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeArrowheads", this.noChangeArrowheads, token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeShapeType", this.noChangeShapeType, token);
+            await sw.WriteAsync(">");
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         public CT_ConnectorLocking()
@@ -324,11 +347,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             if(noGrp)
                 XmlHelper.WriteAttribute(sw, "noGrp", this.noGrp);
             if (noSelect)
@@ -354,7 +375,40 @@ namespace NPOI.OpenXmlFormats.Dml
             sw.Write(">");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            if(noGrp)
+                await XmlHelper.WriteAttributeAsync(sw, "noGrp", this.noGrp, token);
+            if (noSelect)
+                await XmlHelper.WriteAttributeAsync(sw, "noSelect", this.noSelect, token);
+            if (noRot)
+                await XmlHelper.WriteAttributeAsync(sw, "noRot", this.noRot, token);
+            if (noChangeAspect)
+                await XmlHelper.WriteAttributeAsync(sw, "noChangeAspect", this.noChangeAspect, token);
+            if (noMove)
+                await XmlHelper.WriteAttributeAsync(sw, "noMove", this.noMove, token);
+            if (noResize)
+                await XmlHelper.WriteAttributeAsync(sw, "noResize", this.noResize, token);
+            if (noEditPoints)
+                await XmlHelper.WriteAttributeAsync(sw, "noEditPoints", this.noEditPoints, token);
+            if (noAdjustHandles)
+                await XmlHelper.WriteAttributeAsync(sw, "noAdjustHandles", this.noAdjustHandles, token);
+            if (noChangeArrowheads)
+                await XmlHelper.WriteAttributeAsync(sw, "noChangeArrowheads", this.noChangeArrowheads, token);
+            if (noChangeShapeType)
+                await XmlHelper.WriteAttributeAsync(sw, "noChangeShapeType", this.noChangeShapeType, token);
+            if (noCrop)
+                await XmlHelper.WriteAttributeAsync(sw, "noCrop", this.noCrop, token);
+            await sw.WriteAsync(">");
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
         [XmlElement(Order = 0)]
         public CT_OfficeArtExtensionList extLst
@@ -985,7 +1039,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             sw.Write(">");
             if (this.cxnSpLocks != null)
                 this.cxnSpLocks.Write(sw, "cxnSpLocks");
@@ -995,7 +1049,24 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.endCxn.Write(sw, "endCxn");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+            sw.Write($"</xdr:{nodeName}>");
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.cxnSpLocks != null)
+                await this.cxnSpLocks.WriteAsync(sw, "cxnSpLocks", token);
+            if (this.stCxn != null)
+                await this.stCxn.WriteAsync(sw, "stCxn", token);
+            if (this.endCxn != null)
+                await this.endCxn.WriteAsync(sw, "endCxn", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
 
 
@@ -1192,15 +1263,28 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<{0}", nodeName));
+            sw.Write($"<{nodeName}");
             sw.Write(">");
             if (this.grpSpLocks != null)
                 this.grpSpLocks.Write(sw, "grpSpLocks");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</{0}>", nodeName));
+            sw.Write($"</{nodeName}>");
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.grpSpLocks != null)
+                await this.grpSpLocks.WriteAsync(sw, "grpSpLocks", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</{nodeName}>");
+        }
+        
         public CT_NonVisualGroupDrawingShapeProps()
         {
             //this.extLstField = new CT_OfficeArtExtensionList();
@@ -1365,7 +1449,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "noGrp", this.noGrp, false);
             XmlHelper.WriteAttribute(sw, "noSelect", this.noSelect, false);
             XmlHelper.WriteAttribute(sw, "noRot", this.noRot, false);
@@ -1386,7 +1470,36 @@ namespace NPOI.OpenXmlFormats.Dml
             {
                 sw.Write(">");
                 this.extLst.Write(sw, "extLst");
-                sw.Write(string.Format("</a:{0}>", nodeName));
+                sw.Write($"</a:{nodeName}>");
+            }
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "noGrp", this.noGrp, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noSelect", this.noSelect, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noRot", this.noRot, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeAspect", this.noChangeAspect, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noMove", this.noMove, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noResize", this.noResize, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noEditPoints", this.noEditPoints, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noAdjustHandles", this.noAdjustHandles, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeArrowheads", this.noChangeArrowheads, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeShapeType", this.noChangeShapeType, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noTextEdit", this.noTextEdit, false, cancellationToken:token);
+
+            if (this.extLst == null)
+            {
+                await sw.WriteAsync("/>");
+            }
+            else
+            {
+                await sw.WriteAsync(">");
+                await this.extLst.WriteAsync(sw, "extLst", token);
+                await sw.WriteAsync($"</a:{nodeName}>");
             }
         }
         public CT_ShapeLocking()
@@ -1632,7 +1745,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             if(this.noGrp)
                 XmlHelper.WriteAttribute(sw, "noGrp", this.noGrp);
             if(this.noUngrp)
@@ -1650,6 +1763,26 @@ namespace NPOI.OpenXmlFormats.Dml
             sw.Write("/>");
             /*if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");*/
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName}");
+            if(this.noGrp)
+                await XmlHelper.WriteAttributeAsync(sw, "noGrp", this.noGrp, token);
+            if(this.noUngrp)
+                await XmlHelper.WriteAttributeAsync(sw, "noUngrp", this.noUngrp, token);
+            if(this.noSelect)
+                await XmlHelper.WriteAttributeAsync(sw, "noSelect", this.noSelect, token);
+            if(this.noRot)
+                await XmlHelper.WriteAttributeAsync(sw, "noRot", this.noRot, token);
+            if(this.noChangeAspect)
+                await XmlHelper.WriteAttributeAsync(sw, "noChangeAspect", this.noChangeAspect, token);
+            if(this.noMove)
+                await XmlHelper.WriteAttributeAsync(sw, "noMove", this.noMove, token);
+            if(this.noResize)
+                await XmlHelper.WriteAttributeAsync(sw, "noResize", this.noResize, token);
+            await sw.WriteAsync("/>");
         }
 
         [XmlElement(Order = 0)]
@@ -2211,7 +2344,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<{0}", nodeName));
+            sw.Write($"<{nodeName}");
             if(this.bwMode!= ST_BlackWhiteMode.none)
                 XmlHelper.WriteAttribute(sw, "bwMode", this.bwMode.ToString());
             sw.Write(">");
@@ -2237,9 +2370,42 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.scene3d.Write(sw, "scene3d");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</{0}>", nodeName));
+            sw.Write($"</{nodeName}>");
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<{nodeName}");
+            if(this.bwMode!= ST_BlackWhiteMode.none)
+                await XmlHelper.WriteAttributeAsync(sw, "bwMode", this.bwMode.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.xfrm != null)
+                await this.xfrm.WriteAsync(sw, "xfrm", token);
+            if (this.noFill != null)
+                await sw.WriteAsync("<a:noFill/>");
+            if (this.solidFill != null)
+                await this.solidFill.WriteAsync(sw, "solidFill", token);
+            if (this.gradFill != null)
+                await this.gradFill.WriteAsync(sw, "gradFill", token);
+            if (this.blipFill != null)
+                await this.blipFill.WriteAsync(sw, "a:blipFill", token);
+            if (this.pattFill != null)
+                await this.pattFill.WriteAsync(sw, "pattFill", token);
+            if (this.grpFill != null)
+                await sw.WriteAsync("<a:grpFill/>");
+            if (this.effectLst != null)
+                await this.effectLst.WriteAsync(sw, "effectLst", token);
+            if (this.effectDag != null)
+                await this.effectDag.WriteAsync(sw, "effectDag", token);
+            if (this.scene3d != null)
+                await this.scene3d.WriteAsync(sw, "scene3d", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</{nodeName}>");
+        }
+        
         public CT_GroupShapeProperties()
         {
             //this.extlstfield = new ct_officeartextensionlist();

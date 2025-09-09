@@ -4,6 +4,10 @@
 //    <NameSpace>NPOI.OpenXmlFormats.Dml</NameSpace><Collection>List</Collection><codeType>CSharp</codeType><EnableDataBinding>False</EnableDataBinding><EnableLazyLoading>False</EnableLazyLoading><TrackingChangesEnable>False</TrackingChangesEnable><GenTrackingClasses>False</GenTrackingClasses><HidePrivateFieldInIDE>False</HidePrivateFieldInIDE><EnableSummaryComment>False</EnableSummaryComment><VirtualProp>False</VirtualProp><IncludeSerializeMethod>False</IncludeSerializeMethod><UseBaseClass>False</UseBaseClass><GenBaseClass>False</GenBaseClass><GenerateCloneMethod>False</GenerateCloneMethod><GenerateDataContracts>False</GenerateDataContracts><CodeBaseTag>Net20</CodeBaseTag><SerializeMethodName>Serialize</SerializeMethodName><DeserializeMethodName>Deserialize</DeserializeMethodName><SaveToFileMethodName>SaveToFile</SaveToFileMethodName><LoadFromFileMethodName>LoadFromFile</LoadFromFileMethodName><GenerateXMLAttributes>True</GenerateXMLAttributes><EnableEncoding>False</EnableEncoding><AutomaticProperties>False</AutomaticProperties><GenerateShouldSerialize>False</GenerateShouldSerialize><DisableDebug>True</DisableDebug><PropNameSpecified>Default</PropNameSpecified><Encoder>UTF8</Encoder><CustomUsings></CustomUsings><ExcludeIncludedTypes>True</ExcludeIncludedTypes><EnableInitializeFields>True</EnableInitializeFields>
 //  </auto-generated>
 // ------------------------------------------------------------------------------
+
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace NPOI.OpenXmlFormats.Dml {
     using System;
     using System.Diagnostics;
@@ -188,7 +192,28 @@ namespace NPOI.OpenXmlFormats.Dml {
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            XmlHelper.WriteAttribute(sw, "z", this.z);
+            XmlHelper.WriteAttribute(sw, "extrusionH", this.extrusionH);
+            XmlHelper.WriteAttribute(sw, "contourW", this.contourW);
+            XmlHelper.WriteAttribute(sw, "prstMaterial", this.prstMaterial.ToString());
+            sw.Write(">");
+            if (this.bevelT != null)
+                this.bevelT.Write(sw, "bevelT");
+            if (this.bevelB != null)
+                this.bevelB.Write(sw, "bevelB");
+            if (this.extrusionClr != null)
+                this.extrusionClr.Write(sw, "extrusionClr");
+            if (this.contourClr != null)
+                this.contourClr.Write(sw, "contourClr");
+            if (this.extLst != null)
+                this.extLst.Write(sw, "extLst");
+            sw.Write(string.Format("</a:{0}>", nodeName));
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {

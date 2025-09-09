@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Xml;
 using NPOI.OpenXml4Net.Util;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NPOI.OpenXmlFormats.Dml
 {
@@ -732,11 +734,19 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "name", this.name, token);
+            await XmlHelper.WriteAttributeAsync(sw, "fmla", this.fmla, token);
+            await sw.WriteAsync("/>");
+        }
 
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "name", this.name);
             XmlHelper.WriteAttribute(sw, "fmla", this.fmla);
             sw.Write("/>");
@@ -947,7 +957,26 @@ namespace NPOI.OpenXmlFormats.Dml
             return avLst;
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            if (this.gdField == null||this.gdField.Count==0)
+            {
+                await sw.WriteAsync("/>");
+            }
+            else
+            {
+                await sw.WriteAsync(">");
+                foreach (CT_GeomGuide gg in gdField)
+                {
+                    await gg.WriteAsync(sw, "gd", token);
+                }
+                await sw.WriteAsync($"</a:{nodeName}>");
+            }
 
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -998,7 +1027,17 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "l", this.l, token);
+            await XmlHelper.WriteAttributeAsync(sw, "t", this.t, token);
+            await XmlHelper.WriteAttributeAsync(sw, "r", this.r, token);
+            await XmlHelper.WriteAttributeAsync(sw, "b", this.b, token);
+            await sw.WriteAsync("/>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -1480,12 +1519,20 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "id", this.id);
             XmlHelper.WriteAttribute(sw, "idx", this.idx, true);
             sw.Write("/>");
         }
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "id", this.id, token);
+            await XmlHelper.WriteAttributeAsync(sw, "idx", this.idx, true, token);
+            await sw.WriteAsync("/>");
+        }
 
         [XmlAttribute]
         public uint id
@@ -2019,18 +2066,29 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "prst", this.prst.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.avLst != null)
+            {
+                await avLst.WriteAsync(sw, "avLst", token);
+            }
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "prst", this.prst.ToString());
             sw.Write(">");
             if (this.avLst != null)
             {
                 avLst.Write(sw, "avLst");
             }
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
         }
 
 
@@ -2181,7 +2239,31 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.rect != null)
+                await this.rect.WriteAsync(sw, "rect", token);
+            if (this.avLst != null)
+            {
+                this.avLst.Write(sw, "avLst");
+            }
+            if (this.gdLst != null)
+            {
+                this.gdLst.Write(sw, "gdLst");
+            }
+            if (this.cxnLst != null)
+            {
+                this.cxnLstField.Write(sw, "cxnLst");
+            }
+            if (this.pathLst != null)
+            {
+                this.pathLstField.Write(sw, "pathLst");
+            }
+            sw.Write(string.Format("</a:{0}>", nodeName));
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {

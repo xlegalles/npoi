@@ -4,6 +4,10 @@
 //    <NameSpace>NPOI.OpenXmlFormats.Dml</NameSpace><Collection>List</Collection><codeType>CSharp</codeType><EnableDataBinding>False</EnableDataBinding><EnableLazyLoading>False</EnableLazyLoading><TrackingChangesEnable>False</TrackingChangesEnable><GenTrackingClasses>False</GenTrackingClasses><HidePrivateFieldInIDE>False</HidePrivateFieldInIDE><EnableSummaryComment>False</EnableSummaryComment><VirtualProp>False</VirtualProp><IncludeSerializeMethod>False</IncludeSerializeMethod><UseBaseClass>False</UseBaseClass><GenBaseClass>False</GenBaseClass><GenerateCloneMethod>False</GenerateCloneMethod><GenerateDataContracts>False</GenerateDataContracts><CodeBaseTag>Net20</CodeBaseTag><SerializeMethodName>Serialize</SerializeMethodName><DeserializeMethodName>Deserialize</DeserializeMethodName><SaveToFileMethodName>SaveToFile</SaveToFileMethodName><LoadFromFileMethodName>LoadFromFile</LoadFromFileMethodName><GenerateXMLAttributes>True</GenerateXMLAttributes><EnableEncoding>False</EnableEncoding><AutomaticProperties>False</AutomaticProperties><GenerateShouldSerialize>False</GenerateShouldSerialize><DisableDebug>True</DisableDebug><PropNameSpecified>Default</PropNameSpecified><Encoder>UTF8</Encoder><CustomUsings></CustomUsings><ExcludeIncludedTypes>True</ExcludeIncludedTypes><EnableInitializeFields>True</EnableInitializeFields>
 //  </auto-generated>
 // ------------------------------------------------------------------------------
+
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace NPOI.OpenXmlFormats.Dml
 {
     using System;
@@ -47,7 +51,19 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            if(this.type!= ST_LineEndType.none)
+                await XmlHelper.WriteAttributeAsync(sw, "type", this.type.ToString(), token);
+            if (this.w != ST_LineEndWidth.sm)
+                await XmlHelper.WriteAttributeAsync(sw, "w", this.w.ToString(), token);
+            if (this.len != ST_LineEndLength.sm)
+                await XmlHelper.WriteAttributeAsync(sw, "len", this.len.ToString(), token);
+            await sw.WriteAsync("/>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -197,7 +213,14 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "lim", this.lim, token);
+            await sw.WriteAsync("/>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -255,7 +278,12 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "val", this.val.ToString(), token);
+            await sw.WriteAsync("/>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -353,7 +381,16 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "d", this.d, token);
+            await XmlHelper.WriteAttributeAsync(sw, "sp", this.sp, token);
+            await sw.WriteAsync(">");
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -516,7 +553,51 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "w", this.w, token);;
+            if(this.cap!= ST_LineCap.NONE)
+                await XmlHelper.WriteAttributeAsync(sw, "cap", this.cap.ToString(), token);;
+            if(this.cmpd !=  ST_CompoundLine.NONE)
+                await XmlHelper.WriteAttributeAsync(sw, "cmpd", this.cmpd.ToString(), token);
+            if(this.algn!= ST_PenAlignment.NONE)
+                await XmlHelper.WriteAttributeAsync(sw, "algn", this.algn.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.noFill != null)
+                await sw.WriteAsync("<a:noFill/>");
+            if (this.solidFill != null)
+                await this.solidFill.WriteAsync(sw, "solidFill", token);;
+            if (this.gradFill != null)
+                await this.gradFill.WriteAsync(sw, "gradFill", token);
+            if (this.pattFill != null)
+                await this.pattFill.WriteAsync(sw, "pattFill", token);
+            if (this.prstDash != null)
+                await this.prstDash.WriteAsync(sw, "prstDash", token);
+            if (this.custDash != null)
+            {
+                foreach (CT_DashStop x in this.custDash)
+                {
+                    await x.WriteAsync(sw, "custDash", token);
+                }
+            }
+            if (this.round != null)
+                await sw.WriteAsync("<a:round/>");
+            if (this.bevel != null)
+                await sw.WriteAsync("<a:bevel/>");
+            if (this.miter != null)
+                await this.miter.WriteAsync(sw, "miter", token);
+            if (this.headEnd != null)
+                await this.headEnd.WriteAsync(sw, "headEnd", token);
+            if (this.tailEnd != null)
+                await this.tailEnd.WriteAsync(sw, "tailEnd", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
 
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {

@@ -2,6 +2,8 @@ using NPOI.OpenXml4Net.Util;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -41,11 +43,9 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             XmlHelper.WriteAttribute(sw, "macro", this.macro);
             if (this.fPublished)
                 XmlHelper.WriteAttribute(sw, "fPublished", this.fPublished);
@@ -54,6 +54,26 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
                 this.nvPicPr.Write(sw, "nvPicPr");
             if (this.blipFill != null)
                 this.blipFill.Write(sw, "blipFill");
+            if (this.spPr != null)
+                this.spPr.Write(sw, "spPr");
+            if (this.style != null)
+                this.style.Write(sw, "style");
+            sw.Write($"</xdr:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "macro", this.macro, token);
+            if (this.fPublished)
+                await XmlHelper.WriteAttributeAsync(sw, "fPublished", this.fPublished, token);
+            await sw.WriteAsync(">");
+            if (this.nvPicPr != null)
+                await this.nvPicPr.WriteAsync(sw, "nvPicPr", token);
+            if (this.blipFill != null)
+                await this.blipFill.WriteAsync(sw, "blipFill", token);
             if (this.spPr != null)
                 this.spPr.Write(sw, "spPr");
             if (this.style != null)
@@ -190,17 +210,26 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             sw.Write(">");
             if (this.cNvPr != null)
                 this.cNvPr.Write(sw, "cNvPr");
             if (this.cNvPicPr != null)
                 this.cNvPicPr.Write(sw, "cNvPicPr");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+            sw.Write($"</xdr:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.cNvPr != null)
+                await this.cNvPr.WriteAsync(sw, "cNvPr", token);
+            if (this.cNvPicPr != null)
+                await this.cNvPicPr.WriteAsync(sw, "cNvPicPr", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
         public CT_NonVisualDrawingProps AddNewCNvPr()
         {

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using NPOI.OpenXml4Net.Util;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NPOI.OpenXmlFormats.Dml
 {
@@ -54,10 +56,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0} xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"", nodeName));
+            sw.Write($"<a:{nodeName} xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"");
             XmlHelper.WriteAttribute(sw, "r:embed", this.embed);
             XmlHelper.WriteAttribute(sw, "r:link", this.link);
             if(cstate!= ST_BlipCompression.none)
@@ -65,7 +66,20 @@ namespace NPOI.OpenXmlFormats.Dml
             sw.Write(">");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName} xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"");
+            await XmlHelper.WriteAttributeAsync(sw, "r:embed", this.embed, token);
+            await XmlHelper.WriteAttributeAsync(sw, "r:link", this.link, token);
+            if(cstate!= ST_BlipCompression.none)
+                await XmlHelper.WriteAttributeAsync(sw, "cstate", this.cstate.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         [XmlElement("alphaBiLevel", typeof(CT_AlphaBiLevelEffect), Order = 0)]
@@ -1848,9 +1862,31 @@ namespace NPOI.OpenXmlFormats.Dml
 
 
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "blend", this.blend.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.noFill != null)
+                await sw.WriteAsync("<a:noFill/>");
+            if (this.gradFill != null)
+                await this.gradFill.WriteAsync(sw, "gradFill", token);            
+            if (this.solidFill != null)
+                await this.solidFill.WriteAsync(sw, "solidFill", token);
+            if (this.blipFill != null)
+                await this.blipFill.WriteAsync(sw, "a:blipFill", token);
+            if (this.pattFill != null)
+                await this.pattFill.WriteAsync(sw, "pattFill", token);
+            if (this.grpFill != null)
+                await sw.WriteAsync("<a:grpFill/>");
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
+        
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "blend", this.blend.ToString());
             sw.Write(">");
             if (this.noFill != null)
@@ -1865,7 +1901,7 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.pattFill.Write(sw, "pattFill");
             if (this.grpFill != null)
                 sw.Write("<a:grpFill/>");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
         }
 
         public CT_FillOverlayEffect()
@@ -2031,7 +2067,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             sw.Write(">");
             if (this.scrgbClr != null)
                 this.scrgbClr.Write(sw, "scrgbClr");
@@ -2045,9 +2081,30 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.schemeClr.Write(sw, "schemeClr");
             if (this.prstClr != null)
                 this.prstClr.Write(sw, "prstClr");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.scrgbClr != null)
+                await this.scrgbClr.WriteAsync(sw, "scrgbClr", token);
+            if (this.srgbClr != null)
+                await this.srgbClr.WriteAsync(sw, "srgbClr", token);
+            if (this.hslClr != null)
+                await this.hslClr.WriteAsync(sw, "hslClr", token);
+            if (this.sysClr != null)
+                await this.sysClr.WriteAsync(sw, "sysClr", token);
+            if (this.schemeClr != null)
+                await this.schemeClr.WriteAsync(sw, "schemeClr", token);
+            if (this.prstClr != null)
+                await this.prstClr.WriteAsync(sw, "prstClr", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
+        
         [XmlElement(Order = 0)]
         public CT_ScRgbColor scrgbClr
         {
@@ -2243,7 +2300,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             if(this.flip!= ST_TileFlipMode.none)
                 XmlHelper.WriteAttribute(sw, "flip", this.flip.ToString());
             XmlHelper.WriteAttribute(sw, "rotWithShape", this.rotWithShape);
@@ -2256,7 +2313,27 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.path.Write(sw, "path");
             if (this.tileRect != null)
                 this.tileRect.Write(sw, "tileRect");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            if(this.flip!= ST_TileFlipMode.none)
+                await XmlHelper.WriteAttributeAsync(sw, "flip", this.flip.ToString(), token);
+            await XmlHelper.WriteAttributeAsync(sw, "rotWithShape", this.rotWithShape, token);
+            await sw.WriteAsync(">");
+            if (this.gsLst != null)
+                await this.gsLst.WriteAsync(sw, "gsLst", token);
+            if (this.lin != null)
+                await this.lin.WriteAsync(sw, "lin", token);
+            if (this.path != null)
+                await this.path.WriteAsync(sw, "path", token);
+            if (this.tileRect != null)
+                await this.tileRect.WriteAsync(sw, "tileRect", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
         [XmlElement(Order = 0)]
         public CT_GradientStopList gsLst
@@ -2411,11 +2488,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "pos", this.pos, true);
             sw.Write(">");
             if (this.scrgbClr != null)
@@ -2430,7 +2505,27 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.schemeClr.Write(sw, "schemeClr");
             if (this.prstClr != null)
                 this.prstClr.Write(sw, "prstClr");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "pos", this.pos, true, token);
+            await sw.WriteAsync(">");
+            if (this.scrgbClr != null)
+                await this.scrgbClr.WriteAsync(sw, "scrgbClr", token);
+            if (this.srgbClr != null)
+                await this.srgbClr.WriteAsync(sw, "srgbClr", token);
+            if (this.hslClr != null)
+                await this.hslClr.WriteAsync(sw, "hslClr", token);
+            if (this.sysClr != null)
+                await this.sysClr.WriteAsync(sw, "sysClr", token);
+            if (this.schemeClr != null)
+                await this.schemeClr.WriteAsync(sw, "schemeClr", token);
+            if (this.prstClr != null)
+                await this.prstClr.WriteAsync(sw, "prstClr", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         [XmlElement(Order = 0)]
@@ -2548,14 +2643,20 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "ang", this.ang);
             XmlHelper.WriteAttribute(sw, "scaled", this.scaled);
             sw.Write("/>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "ang", this.ang, token);
+            await XmlHelper.WriteAttributeAsync(sw, "scaled", this.scaled, token);
+            await sw.WriteAsync("/>");
         }
 
         [XmlAttribute]
@@ -2642,16 +2743,24 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "path", this.path.ToString());
             sw.Write(">");
             if (this.fillToRect != null)
                 this.fillToRect.Write(sw, "fillToRect");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "path", this.path.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.fillToRect != null)
+                await this.fillToRect.WriteAsync(sw, "fillToRect", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
 
@@ -2783,11 +2892,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<{0}", nodeName));
+            sw.Write($"<{nodeName}");
             XmlHelper.WriteAttribute(sw, "dpi", this.dpi);
             XmlHelper.WriteAttribute(sw, "rotWithShape", this.rotWithShape);
             sw.Write(">");
@@ -2799,7 +2906,26 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.tile.Write(sw, "tile");
             if (this.stretch != null)
                 this.stretch.Write(sw, "stretch");
-            sw.Write(string.Format("</{0}>", nodeName));
+            sw.Write($"</{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "dpi", this.dpi, token);
+            await XmlHelper.WriteAttributeAsync(sw, "rotWithShape", this.rotWithShape, token);
+            await sw.WriteAsync(">");
+            if (this.blip != null)
+                this.blip.Write(sw, "blip");
+            if (this.srcRect != null)
+                this.srcRect.Write(sw, "srcRect");
+            if (this.tile != null)
+                this.tile.Write(sw, "tile");
+            if (this.stretch != null)
+                this.stretch.Write(sw, "stretch");
+            sw.Write($"</{nodeName}>");
         }
 
         [XmlElement(Order = 0)]
@@ -2960,11 +3086,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "tx", this.tx);
             XmlHelper.WriteAttribute(sw, "ty", this.ty);
             XmlHelper.WriteAttribute(sw, "sx", this.sx);
@@ -2972,7 +3096,22 @@ namespace NPOI.OpenXmlFormats.Dml
             XmlHelper.WriteAttribute(sw, "flip", this.flip.ToString());
             XmlHelper.WriteAttribute(sw, "algn", this.algn.ToString());
             sw.Write(">");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "tx", this.tx, token);
+            await XmlHelper.WriteAttributeAsync(sw, "ty", this.ty, token);
+            await XmlHelper.WriteAttributeAsync(sw, "sx", this.sx, token);
+            await XmlHelper.WriteAttributeAsync(sw, "sy", this.sy, token);
+            await XmlHelper.WriteAttributeAsync(sw, "flip", this.flip.ToString(), token);
+            await XmlHelper.WriteAttributeAsync(sw, "algn", this.algn.ToString(), token);
+            await sw.WriteAsync(">");
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         [XmlAttribute]
@@ -3151,15 +3290,24 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             sw.Write(">");
             if (this.fillRect != null)
                 this.fillRect.Write(sw, "fillRect");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.fillRect != null)
+                await this.fillRect.WriteAsync(sw, "fillRect", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         private CT_RelativeRect fillRectField = null;
@@ -3214,18 +3362,30 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "prst", this.prst.ToString());
             sw.Write(">");
             if (this.fgClr != null)
                 this.fgClr.Write(sw, "fgClr");
             if (this.bgClr != null)
                 this.bgClr.Write(sw, "bgClr");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "prst", this.prst.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.fgClr != null)
+                await this.fgClr.WriteAsync(sw, "fgClr", token);
+            if (this.bgClr != null)
+                await this.bgClr.WriteAsync(sw, "bgClr", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
 
@@ -3906,15 +4066,24 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "rad", this.rad);
             XmlHelper.WriteAttribute(sw, "grow", this.grow);
             sw.Write(">");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "rad", this.rad, token);
+            await XmlHelper.WriteAttributeAsync(sw, "grow", this.grow, token);
+            await sw.WriteAsync(">");
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
         private long radField;
 
@@ -4027,15 +4196,24 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             XmlHelper.WriteAttribute(sw, "type", this.type.ToString());
             XmlHelper.WriteAttribute(sw, "name", this.name);
             sw.Write(">");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "type", this.type.ToString(), token);
+            await XmlHelper.WriteAttributeAsync(sw, "name", this.name, token);
+            await sw.WriteAsync(">");
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         [XmlElement("alphaBiLevel", typeof(CT_AlphaBiLevelEffect), Order = 0)]
@@ -4443,7 +4621,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             sw.Write(">");
             if (this.gs != null)
             {
@@ -4452,7 +4630,23 @@ namespace NPOI.OpenXmlFormats.Dml
                     x.Write(sw, "gs");
                 }
             }
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+        
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.gs != null)
+            {
+                foreach (CT_GradientStop x in this.gs)
+                {
+                    await x.WriteAsync(sw, "gs", token);
+                }
+            }
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         private List<CT_GradientStop> gsField;
@@ -4631,11 +4825,9 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write($"<a:{nodeName}");
             sw.Write(">");
             if (this.blur != null)
                 this.blur.Write(sw, "blur");
@@ -4653,7 +4845,32 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.reflection.Write(sw, "reflection");
             if (this.softEdge != null)
                 this.softEdge.Write(sw, "softEdge");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write($"</a:{nodeName}>");
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.blur != null)
+                await this.blur.WriteAsync(sw, "blur", token);
+            if (this.fillOverlay != null)
+                this.fillOverlay.Write(sw, "fillOverlay");
+            if (this.glow != null)
+                this.glow.Write(sw, "glow");
+            if (this.innerShdw != null)
+                this.innerShdw.Write(sw, "innerShdw");
+            if (this.outerShdw != null)
+                this.outerShdw.Write(sw, "outerShdw");
+            if (this.prstShdw != null)
+                this.prstShdw.Write(sw, "prstShdw");
+            if (this.reflection != null)
+                this.reflection.Write(sw, "reflection");
+            if (this.softEdge != null)
+                this.softEdge.Write(sw, "softEdge");
+            sw.Write($"</a:{nodeName}>");
         }
 
         public CT_EffectList()
