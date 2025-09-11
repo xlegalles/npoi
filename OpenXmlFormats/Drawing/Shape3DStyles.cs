@@ -46,8 +46,6 @@ namespace NPOI.OpenXmlFormats.Dml {
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
             sw.Write(string.Format("<a:{0}", nodeName));
@@ -57,6 +55,19 @@ namespace NPOI.OpenXmlFormats.Dml {
                 XmlHelper.WriteAttribute(sw, "prst", this.prst.ToString());
             sw.Write(">");
             sw.Write(string.Format("</a:{0}>", nodeName));
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync(string.Format("<a:{0}", nodeName));
+            await XmlHelper.WriteAttributeAsync(sw, "w", this.w, true, token);
+            await XmlHelper.WriteAttributeAsync(sw, "h", this.h, true, token);
+            if(this.prst != ST_BevelPresetType.circle)
+                await XmlHelper.WriteAttributeAsync(sw, "prst", this.prst.ToString(), token);
+            await sw.WriteAsync(">");
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         public CT_Bevel() {
@@ -197,22 +208,22 @@ namespace NPOI.OpenXmlFormats.Dml {
             token.ThrowIfCancellationRequested();
             
             await sw.WriteAsync($"<a:{nodeName}");
-            XmlHelper.WriteAttribute(sw, "z", this.z);
-            XmlHelper.WriteAttribute(sw, "extrusionH", this.extrusionH);
-            XmlHelper.WriteAttribute(sw, "contourW", this.contourW);
-            XmlHelper.WriteAttribute(sw, "prstMaterial", this.prstMaterial.ToString());
-            sw.Write(">");
+            await XmlHelper.WriteAttributeAsync(sw, "z", this.z, token);
+            await XmlHelper.WriteAttributeAsync(sw, "extrusionH", this.extrusionH, token);
+            await XmlHelper.WriteAttributeAsync(sw, "contourW", this.contourW, token);
+            await XmlHelper.WriteAttributeAsync(sw, "prstMaterial", this.prstMaterial.ToString(), token);
+            await sw.WriteAsync(">");
             if (this.bevelT != null)
-                this.bevelT.Write(sw, "bevelT");
+                await this.bevelT.WriteAsync(sw, "bevelT", token);
             if (this.bevelB != null)
-                this.bevelB.Write(sw, "bevelB");
+                await this.bevelB.WriteAsync(sw, "bevelB", token);
             if (this.extrusionClr != null)
-                this.extrusionClr.Write(sw, "extrusionClr");
+                await this.extrusionClr.WriteAsync(sw, "extrusionClr", token);
             if (this.contourClr != null)
-                this.contourClr.Write(sw, "contourClr");
+                await this.contourClr.WriteAsync(sw, "contourClr", token);
             if (this.extLst != null)
-                this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
         }
 
         internal void Write(StreamWriter sw, string nodeName)

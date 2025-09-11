@@ -381,8 +381,6 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
-
         internal void Write(StreamWriter sw, string nodeName)
         {
             sw.Write(string.Format("<xdr:{0}", nodeName));
@@ -396,6 +394,23 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             if (this.fontRef != null)
                 this.fontRef.Write(sw, "fontRef");
             sw.Write(string.Format("</xdr:{0}>", nodeName));
+        }
+
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.lnRef != null)
+                await this.lnRef.WriteAsync(sw, "lnRef", token);
+            if (this.fillRef != null)
+                await this.fillRef.WriteAsync(sw, "fillRef", token);
+            if (this.effectRef != null)
+                await this.effectRef.WriteAsync(sw, "effectRef", token);
+            if (this.fontRef != null)
+                await this.fontRef.WriteAsync(sw, "fontRef", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
 
         public CT_StyleMatrixReference AddNewFillRef()
@@ -857,24 +872,24 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             {
                 foreach (var pic in this.pictures)
                 {
-                    pic.Write(sw, "pic");
+                    await pic.WriteAsync(sw, "pic", token);
                 }
             }
             if (this.connectors.Count > 0)
             {
                 foreach(var con in this.connectors)
                 {
-                    con.Write(sw, "cxnSp");
+                    await con.WriteAsync(sw, "cxnSp", token);
                 }
             }
             if (this.groups.Count > 0)
             {
                 foreach(var group in this.groups)
                 {
-                    group.Write(sw, "grpSp");
+                    await group.WriteAsync(sw, "grpSp", token);
                 }
             }
-            sw.Write($"</xdr:{nodeName}>");
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
 
     }

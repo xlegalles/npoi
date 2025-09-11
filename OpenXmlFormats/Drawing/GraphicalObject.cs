@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using NPOI.OpenXml4Net.Util;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NPOI.OpenXmlFormats.Dml
 {
@@ -31,7 +33,19 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "uri", this.uri, token);
+            await sw.WriteAsync(">");
+            foreach (string x in this.Any)
+            {
+                await sw.WriteAsync(x);
+            }
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -112,6 +126,15 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName} xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\">");
+            if (this.graphicData != null)
+                this.graphicData.Write(sw, "graphicData");
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
 
         internal void Write(StreamWriter sw, string nodeName)

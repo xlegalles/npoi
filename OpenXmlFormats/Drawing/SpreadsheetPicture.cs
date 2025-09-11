@@ -75,10 +75,10 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             if (this.blipFill != null)
                 await this.blipFill.WriteAsync(sw, "blipFill", token);
             if (this.spPr != null)
-                this.spPr.Write(sw, "spPr");
+                await this.spPr.WriteAsync(sw, "spPr", token);
             if (this.style != null)
-                this.style.Write(sw, "style");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+                await this.style.WriteAsync(sw, "style", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
 
         [XmlElement]

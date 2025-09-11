@@ -633,7 +633,26 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            await sw.WriteAsync($"<a:{nodeName} xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"");
+            await XmlHelper.WriteAttributeAsync(sw, "noGrp", this.noGrp, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noDrilldown", this.noDrilldown, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noSelect", this.noSelect, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noChangeAspect", this.noChangeAspect, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noMove", this.noMove, false, cancellationToken:token);
+            await XmlHelper.WriteAttributeAsync(sw, "noResize", this.noResize, false, cancellationToken:token);
+            if (this.extLst != null && this.extLst.ext.Count != 0)
+            {
+                await sw.WriteAsync(">");
+                await this.extLst.WriteAsync(sw, "extLst", token);
+                await sw.WriteAsync($"</a:{nodeName}>");
+            }
+            else
+            {
+                await sw.WriteAsync("/>");
+            }
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {

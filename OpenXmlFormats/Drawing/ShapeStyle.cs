@@ -2,6 +2,8 @@
 using NPOI.OpenXml4Net.Util;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -56,7 +58,27 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "idx", this.idx, true, token);
+            await sw.WriteAsync(">");
+            if (this.scrgbClr != null)
+                await this.scrgbClr.WriteAsync(sw, "scrgbClr", token);
+            if (this.srgbClr != null)
+                await this.srgbClr.WriteAsync(sw, "srgbClr", token);
+            if (this.hslClr != null)
+                await this.hslClr.WriteAsync(sw, "hslClr", token);
+            if (this.sysClr != null)
+                await this.sysClr.WriteAsync(sw, "sysClr", token);
+            if (this.schemeClr != null)
+                await this.schemeClr.WriteAsync(sw, "schemeClr", token);
+            if (this.prstClr != null)
+                await this.prstClr.WriteAsync(sw, "prstClr", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
@@ -224,7 +246,27 @@ namespace NPOI.OpenXmlFormats.Dml
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<a:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "idx", this.idx.ToString(), token);
+            await sw.WriteAsync(">");
+            if (this.scrgbClr != null)
+                await this.scrgbClr.WriteAsync(sw, "scrgbClr", token);
+            if (this.srgbClr != null)
+                await this.srgbClr.WriteAsync(sw, "srgbClr", token);
+            if (this.hslClr != null)
+                await this.hslClr.WriteAsync(sw, "hslClr", token);
+            if (this.sysClr != null)
+                await this.sysClr.WriteAsync(sw, "sysClr", token);
+            if (this.schemeClr != null)
+                await this.schemeClr.WriteAsync(sw, "schemeClr", token);
+            if (this.prstClr != null)
+                await this.prstClr.WriteAsync(sw, "prstClr", token);
+            await sw.WriteAsync($"</a:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {

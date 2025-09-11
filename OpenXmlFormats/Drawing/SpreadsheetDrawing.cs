@@ -229,17 +229,28 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.graphicFrameLocks != null)
+                await this.graphicFrameLocks.WriteAsync(sw, "graphicFrameLocks", token);
+            if (this.extLst != null)
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             sw.Write(">");
             if (this.graphicFrameLocks != null)
                 this.graphicFrameLocks.Write(sw, "graphicFrameLocks");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+            sw.Write($"</xdr:{nodeName}>");
         }
 
         [XmlElement(Order = 0)]
@@ -290,17 +301,28 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await sw.WriteAsync(">");
+            if (this.cNvPr != null)
+                await this.cNvPr.WriteAsync(sw, "cNvPr", token);
+            if (this.cNvGraphicFramePr != null)
+                this.cNvGraphicFramePr.Write(sw, "cNvGraphicFramePr");
+            await sw.WriteAsync($"</xdr:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             sw.Write(">");
             if (this.cNvPr != null)
                 this.cNvPr.Write(sw, "cNvPr");
             if (this.cNvGraphicFramePr != null)
                 this.cNvGraphicFramePr.Write(sw, "cNvGraphicFramePr");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+            sw.Write($"</xdr:{nodeName}>");
         }
 
         public CT_NonVisualDrawingProps AddNewCNvPr()
@@ -1050,10 +1072,10 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             if (this.scene3d != null)
                 await this.scene3d.WriteAsync(sw, "scene3d", token);
             if (this.sp3d != null)
-                this.sp3d.Write(sw, "sp3d");
+                await this.sp3d.WriteAsync(sw, "sp3d", token);
             if (this.extLst != null)
-                this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+                await this.extLst.WriteAsync(sw, "extLst", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
         }
 
     }
@@ -1144,11 +1166,26 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
             return ctObj;
         }
 
-
+        internal async Task WriteAsync(StreamWriter sw, string nodeName, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            await sw.WriteAsync($"<xdr:{nodeName}");
+            await XmlHelper.WriteAttributeAsync(sw, "macro", this.macro, true, token);
+            await XmlHelper.WriteAttributeAsync(sw, "fPublished", this.fPublished, false, cancellationToken:token);
+            await sw.WriteAsync(">");
+            if (this.nvGraphicFramePr != null)
+                await this.nvGraphicFramePr.WriteAsync(sw, "nvGraphicFramePr", token);
+            if (this.xfrm != null)
+                await this.xfrm.WriteAsync(sw, "xdr:xfrm", token);
+            if (this.graphic != null)
+                await this.graphic.WriteAsync(sw, "graphic", token);
+            await sw.WriteAsync($"</xdr:{nodeName}>");
+        }
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<xdr:{0}", nodeName));
+            sw.Write($"<xdr:{nodeName}");
             XmlHelper.WriteAttribute(sw, "macro", this.macro, true);
             XmlHelper.WriteAttribute(sw, "fPublished", this.fPublished, false);
             sw.Write(">");
@@ -1158,7 +1195,7 @@ namespace NPOI.OpenXmlFormats.Dml.Spreadsheet
                 this.xfrm.Write(sw, "xdr:xfrm");
             if (this.graphic != null)
                 this.graphic.Write(sw, "graphic");
-            sw.Write(string.Format("</xdr:{0}>", nodeName));
+            sw.Write($"</xdr:{nodeName}>");
         }
 
     }
